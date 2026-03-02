@@ -2,44 +2,39 @@ package taskapi.service;
 
 import org.springframework.stereotype.Service;
 import taskapi.model.Task;
+import taskapi.repository.TaskRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TaskService {
 
-    private final List<Task> tasks = new ArrayList<>();
-    private Long counter = 1L;
+    private final TaskRepository repository;
 
-    public List<Task> getAllTasks() {
-        return tasks;
-    }
-
-    public Task getTaskById(Long id) {
-        return tasks.stream()
-                .filter(task -> task.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+    public TaskService(TaskRepository repository) {
+        this.repository = repository;
     }
 
     public Task createTask(Task task) {
-        task.setId(counter++);
-        tasks.add(task);
-        return task;
+        return repository.save(task);
+    }
+
+    public Task getTaskById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+    }
+
+    public List<Task> getAllTasks() {
+        return repository.findAll();
     }
 
     public Task updateTask(Long id, Task updatedTask) {
-        for (Task task : tasks) {
-            if (task.getId().equals(id)) {
-                task.setTitle(updatedTask.getTitle());
-                return task;
-            }
-        }
-        return null;
+        Task task = getTaskById(id);
+        task.setTitle(updatedTask.getTitle());
+        return repository.save(task);
     }
 
-    public boolean deleteTask(Long id) {
-        return tasks.removeIf(task -> task.getId().equals(id));
+    public void deleteTask(Long id) {
+        repository.deleteById(id);
     }
 }

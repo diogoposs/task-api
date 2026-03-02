@@ -26,11 +26,6 @@ public class TaskController {
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
         Task task = taskService.getTaskById(id);
-
-        if (task == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(task);
     }
 
@@ -46,23 +41,12 @@ public class TaskController {
             @Valid @RequestBody Task task) {
 
         Task updated = taskService.updateTask(id, task);
-
-        if (updated == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-
-        boolean deleted = taskService.deleteTask(id);
-
-        if (!deleted) {
-            return ResponseEntity.notFound().build();
-        }
-
+        taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
 }
